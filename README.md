@@ -164,3 +164,17 @@ https://github.com/Prajjawalsingh87
 ## Notes
 
 Most solutions are written with competitive programming constraints in mind and prioritize efficiency and readability.
+## ITMO Segment Tree Course
+
+Problems are primarily solved from the official ITMO Academy Segment Tree Course:
+
+https://codeforces.com/edu/course/2/lesson/4
+
+Topics include:
+
+- Segment Tree Basics
+- Range Queries
+- Lazy Propagation
+- Segment Updates
+- Assignment Operations
+- Advanced Segment Tree Problems
