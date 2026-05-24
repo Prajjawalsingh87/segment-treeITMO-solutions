@@ -1,87 +1,61 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define ll long long
+/**
+ * Problem: Cirno and Number (Easy Version)
+ * Description: 
+ * Find a number composed of only digits d1 and d2 (d1 < d2) that is closest to 'a'.
+ * The easy version allows searching through all possible numbers up to 18 digits.
+ */
 
-vector<ll> vt;
+typedef long long ll;
 
-void solve(ll cur, int len)
-{
-    if (len == 0)
-        return;
+vector<ll> candidates;
 
-    ll x = cur * 10 + 1;
-    vt.push_back(x);
-    solve(x, len - 1);
-
-    ll y = cur * 10 + 2;
-    vt.push_back(y);
-    solve(y, len - 1);
+void generate(ll cur, int len, ll d1, ll d2) {
+    if (len > 18) return;
+    if (cur > 0) candidates.push_back(cur);
+    
+    if (cur > 2e18 / 10) return; // Avoid overflow
+    
+    generate(cur * 10 + d1, len + 1, d1, d2);
+    generate(cur * 10 + d2, len + 1, d1, d2);
 }
 
-ll check(ll num, ll a, ll d1, ll d2)
-{
-    ll val = 0;
+// Special case for generating numbers when d1=0 (cannot start with 0)
+void generate_with_zero(ll cur, int len, ll d2) {
+    if (len > 18) return;
+    if (cur > 0) candidates.push_back(cur);
+    if (cur > 2e18 / 10) return;
 
-    string str = to_string(num);
-
-    for (char c : str)
-    {
-        if (c == '1')
-            val = val * 10 + d1;
-        else
-            val = val * 10 + d2;
-    }
-
-    return llabs(val - a);
+    generate_with_zero(cur * 10 + 0, len + 1, d2);
+    generate_with_zero(cur * 10 + d2, len + 1, d2);
 }
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    solve(0, 18);
-
-    sort(vt.begin(), vt.end());
-
-    int t;
-    cin >> t;
-
-    while (t--)
-    {
-        ll a;
-        int n;
-
-        cin >> a >> n;
-
-        ll d1, d2;
-        cin >> d1 >> d2;
-
-        if (d1 > d2)
-            swap(d1, d2);
-
-        ll lo = 0;
-        ll hi = vt.size() - 1;
-
-        while (hi - lo > 1)
-        {
-            ll mid = (lo + hi) / 2;
-
-            ll val1 = check(vt[mid], a, d1, d2);
-            ll val2 = check(vt[mid + 1], a, d1, d2);
-
-            if (val2 < val1)
-                lo = mid;
-            else
-                hi = mid;
-        }
-
-        cout << min(
-            check(vt[lo], a, d1, d2),
-            check(vt[hi], a, d1, d2)
-        ) << '\n';
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0);
+    ll a;
+    int n_ignored;
+    ll d1, d2;
+    if (!(cin >> a >> n_ignored >> d1 >> d2)) return 0;
+    
+    if (d1 > d2) swap(d1, d2);
+    
+    if (d1 == 0) {
+        generate_with_zero(d2, 1, d2);
+    } else {
+        generate(0, 0, d1, d2);
     }
-
+    
+    sort(candidates.begin(), candidates.end());
+    candidates.erase(unique(candidates.begin(), candidates.end()), candidates.end());
+    
+    ll min_diff = LLONG_MAX;
+    for (ll val : candidates) {
+        min_diff = min(min_diff, llabs(val - a));
+    }
+    
+    cout << min_diff << "\n";
+    
     return 0;
 }

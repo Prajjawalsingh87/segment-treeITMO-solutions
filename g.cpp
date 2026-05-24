@@ -1,17 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
- 
+
+/**
+ * Problem: Dynamic Range Minimum Query
+ * Description: 
+ * Range query: calculate the minimum element in range [l, r].
+ * Point update: change element at position k to u.
+ */
+
+typedef long long ll;
+
 class SegmentTree {
-    vector<int> tree;
-    int n;
- 
 public:
+    vector<ll> tree;
+    int n;
+
     SegmentTree(int size) {
         n = size;
-        tree.resize(4 * n, INT_MAX);
+        tree.assign(4 * n, 2e18);
     }
- 
-    void build(vector<int>& arr, int idx, int l, int r) {
+
+    void build(const vector<ll>& arr, int idx, int l, int r) {
         if (l == r) {
             tree[idx] = arr[l];
             return;
@@ -21,63 +30,45 @@ public:
         build(arr, 2 * idx + 1, mid + 1, r);
         tree[idx] = min(tree[2 * idx], tree[2 * idx + 1]);
     }
- 
-    void update(int idx, int l, int r, int pos, int val) {
-        if (pos < l || pos > r) return;
+
+    void update(int idx, int l, int r, int pos, ll val) {
         if (l == r) {
             tree[idx] = val;
             return;
         }
         int mid = (l + r) / 2;
-        update(2 * idx, l, mid, pos, val);
-        update(2 * idx + 1, mid + 1, r, pos, val);
+        if (pos <= mid) update(2 * idx, l, mid, pos, val);
+        else update(2 * idx + 1, mid + 1, r, pos, val);
         tree[idx] = min(tree[2 * idx], tree[2 * idx + 1]);
     }
- 
-    int query(int idx, int l, int r, int lq, int rq) {
-        if (lq > r || l > rq) return INT_MAX;
-        if (lq <= l && rq >= r) return tree[idx];
+
+    ll query(int idx, int l, int r, int lq, int rq) {
+        if (r < lq || l > rq) return 2e18;
+        if (l >= lq && r <= rq) return tree[idx];
         int mid = (l + r) / 2;
-        int leftQuery = query(2 * idx, l, mid, lq, rq);
-        int rightQuery = query(2 * idx + 1, mid + 1, r, lq, rq);
-        return min(leftQuery, rightQuery);
+        return min(query(2 * idx, l, mid, lq, rq), query(2 * idx + 1, mid + 1, r, lq, rq));
     }
- 
-    void build(vector<int>& arr) {
-        build(arr, 1, 0, n - 1);
-    }
- 
-    void update(int pos, int val) {
-        update(1, 0, n - 1, pos, val);
-    }
- 
-    int query(int lq, int rq) {
-        return query(1, 0, n - 1, lq, rq);
-    }
+
+    void build(const vector<ll>& arr) { build(arr, 1, 0, n - 1); }
+    void update(int pos, ll val) { update(1, 0, n - 1, pos, val); }
+    ll query(int l, int r) { return query(1, 0, n - 1, l, r); }
 };
- 
-void solve() {
+
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0);
     int n, q;
-    cin >> n >> q;
-    vector<int> arr(n);
-    for (int i = 0; i < n; i++) {
-        cin >> arr[i];
-    }
- 
-    SegmentTree segTree(n);
-    segTree.build(arr);
- 
+    if (!(cin >> n >> q)) return 0;
+    
+    vector<ll> arr(n);
+    for (int i = 0; i < n; i++) cin >> arr[i];
+
+    SegmentTree st(n);
+    st.build(arr);
+
     while (q--) {
         int l, r;
         cin >> l >> r;
-        l--, r--;
-        cout << segTree.query(l, r) << endl;
+        cout << st.query(l - 1, r - 1) << "\n";
     }
-}
- 
-int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    solve();
     return 0;
 }

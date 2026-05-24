@@ -1,218 +1,90 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define ll long long
-#define V vector<ll>
-#define VV vector<V>
-#define p push
-#define po pop
-#define pb push_back
-#define ppb pop_back
-#define ff first
-#define ld long double
-#define ss second
-#define sz(x) (int)x.size()
-#define all(x) x.begin(), x.end()
-const int m = 1e9 + 7;
-void print(ll n)
-{
-    cout << n << endl;
-}
-ll gcd(ll a, ll b)
-{
-    return b == 0 ? a : gcd(b, a % b);
-}
-ll lcd(ll a, ll b)
-{
-    return a * b / gcd(a, b);
-}
-ll pow(ll x, ll n)
-{
 
-    ll res = 1;
-    while (n > 0)
-    {
+/**
+ * Problem: Inversions 2
+ * Source: ITMO Academy Pilot, Segment Tree 1, Step 3, Problem B
+ * Description: 
+ * Given an array of inversions. For each element, the number of elements to its left that are greater.
+ * Find the original permutation.
+ * Logic: Process from right to left, find the (k+1)-th largest available number using a segment tree.
+ */
 
-        if (n & 1)
-            res = (res * x) % m;
-        n = n >> 1;
-        x = (x * x) % m;
-    }
-    return res;
-}
-void print4(vector<vector<ll>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[i].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print3(vector<ll> &v)
-{
-    for (int j = 0; j < v.size(); j++)
-    {
-        cout << v[j] << " ";
-    }
-    cout << endl;
-}
-void print2(vector<vector<char>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[0].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print1(vector<string> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-}
-void input(vector<ll> &v, ll n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        ll y;
-        cin >> y;
-        v.pb(y);
-    }
-}
-class disjointset
-{
-    V rank, parent, rsize;
-   public:
-    disjointset(ll n)
-    {
-        rank.resize(n + 1, 0);
-        parent.resize(n + 1, 0);
-        rsize.resize(n + 1, 1);
-        for (int i = 1; i <= n; i++)
-        {
-            parent[i] = i;
-        }
-    }
-    ll findUparent(ll node){
-        if(parent[node]==node) return node;
-        return parent[node]=findUparent(parent[node]);
-    }
-    void unionbyrank(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rank[ulp_u]<rank[ulp_v]){
-            parent[ulp_u]=ulp_v;
-        }
-        else if(rank[ulp_u]>rank[ulp_v]){
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-            parent[ulp_v]=ulp_u;
-            rank[ulp_u]++;
-        }
-    }
-    void unionbysize(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rsize[ulp_u]>rsize[ulp_v]){
-            rsize[ulp_u]+=rsize[ulp_v];
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-             rsize[ulp_v]+=rsize[ulp_u];
-            parent[ulp_u]=ulp_v;
-        }
-    }
-};
-class Segmenttree{
-  public:
-    vector<ll>tree;
+typedef long long ll;
+
+class SegmentTree {
+public:
+    vector<ll> tree;
     ll n;
-    Segmenttree(ll size){
-        n=size;
-        tree.resize(4*n);
+
+    SegmentTree(ll size) {
+        n = size;
+        tree.assign(4 * n, 0);
     }
-    void build(vector<ll>&arr,ll idx,ll l,ll r){
-        if(l==r){
-            tree[idx]=arr[l];
-            return ;
+
+    void build(ll idx, ll l, ll r) {
+        if (l == r) {
+            tree[idx] = 1; // Initially all numbers are available
+            return;
         }
-        ll mid=(l+r)/2;
-        build(arr,2*idx,l,mid);
-        build(arr,2*idx+1,mid+1,r);
-        tree[idx]=tree[2*idx]+tree[2*idx+1];
+        ll mid = (l + r) / 2;
+        build(2 * idx, l, mid);
+        build(2 * idx + 1, mid + 1, r);
+        tree[idx] = tree[2 * idx] + tree[2 * idx + 1];
     }
-    void update(ll idx,ll l,ll r,ll pos,ll val){
-        if(pos<l || pos>r) return ;
-        if(l==r){
-            tree[idx]=val;
-            return ;
+
+    // Update: set availability of pos to val (0 or 1)
+    void update(ll idx, ll l, ll r, ll pos, ll val) {
+        if (l == r) {
+            tree[idx] = val;
+            return;
         }
-        ll mid=(l+r)/2;
-        if(pos<=mid) update(2*idx,l,mid,pos,val);
-        else update(2*idx+1,mid+1,r,pos,val);
-        tree[idx]=tree[2*idx]+tree[2*idx+1];
+        ll mid = (l + r) / 2;
+        if (pos <= mid) update(2 * idx, l, mid, pos, val);
+        else update(2 * idx + 1, mid + 1, r, pos, val);
+        tree[idx] = tree[2 * idx] + tree[2 * idx + 1];
     }
-    ll query(ll idx,ll l,ll r,ll lq,ll rq){
-        if(r<lq || l>rq) return 0;
-        if(l>=lq && r<=rq) return tree[idx];
-        ll mid=(l+r)/2;
-        ll left_sum=query(2*idx,l,mid,lq,rq);
-        ll right_sum=query(2*idx+1,mid+1,r,lq,rq);
-        return left_sum+right_sum;
+
+    // Find the k-th available number from the right
+    ll find_kth(ll idx, ll l, ll r, ll k) {
+        if (l == r) return l;
+        ll mid = (l + r) / 2;
+        // Number of available elements in the right child
+        ll right_count = tree[2 * idx + 1];
+        if (right_count >= k) return find_kth(2 * idx + 1, mid + 1, r, k);
+        else return find_kth(2 * idx, l, mid, k - right_count);
     }
-    void build(vector<ll>&arr){
-        build(arr,1,0,n-1);
-    }
-    void update(ll pos,ll val){
-        update(1,0,n-1,pos,val);
-    }
-    ll query(ll lq,ll rq){
-        return query(1,0,n-1,lq,rq);
-    }
+
+    void build() { build(1, 1, n); }
+    void update(ll pos, ll val) { update(1, 1, n, pos, val); }
+    ll find_kth(ll k) { return find_kth(1, 1, n, k); }
 };
 
-int main()
-{
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0);
     ll n;
-    cin>>n;
-    vector<ll>arr(n+1,0);
-    for(ll i=1;i<=n;i++) arr[i]=1;
-    Segmenttree sq(n+20);
-    sq.build(arr);
-    vector<ll>temp;
-    for(ll i=0;i<n;i++){
-        ll val;
-        cin>>val;
-        temp.push_back(val);
+    if (!(cin >> n)) return 0;
+    
+    vector<ll> b(n);
+    for (ll i = 0; i < n; i++) cin >> b[i];
+
+    SegmentTree st(n);
+    st.build();
+
+    vector<ll> ans;
+    // Process from right to left
+    for (ll i = n - 1; i >= 0; i--) {
+        // b[i] is the number of elements to the left that are greater.
+        // In the current available set, we want the (b[i]+1)-th largest element.
+        ll val = st.find_kth(b[i] + 1);
+        ans.push_back(val);
+        st.update(val, 0); // Number is no longer available
     }
-    vector<ll>ans;
-    for(ll i=n-1;i>=0;i--){
-        ll num=temp[i];
-        ll lo=0,hi=n+1;
-        while(hi-lo>1){
-            ll mid=(hi+lo)/2;
-            ll count=sq.query(mid+1,n);
-            if(count>num){
-               lo=mid;
-            }
-            else{
-               hi=mid;
-            }
-        }
-        sq.update(hi,0);
-        ans.push_back(hi);
+
+    reverse(ans.begin(), ans.end());
+    for (ll i = 0; i < n; i++) {
+        cout << ans[i] << (i == n - 1 ? "" : " ");
     }
-    reverse(ans.begin(),ans.end());
-    print3(ans);
+    cout << "\n";
     return 0;
 }

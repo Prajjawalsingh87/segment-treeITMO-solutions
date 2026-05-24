@@ -1,217 +1,83 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define ll long long
-#define V vector<ll>
-#define VV vector<V>
-#define p push
-#define po pop
-#define pb push_back
-#define ppb pop_back
-#define ff first
-#define ld long double
-#define ss second
-#define sz(x) (int)x.size()
-#define all(x) x.begin(), x.end()
-const int m = 1e9 + 7;
-void print(ll n)
-{
-    cout << n << endl;
-}
-ll gcd(ll a, ll b)
-{
-    return b == 0 ? a : gcd(b, a % b);
-}
-ll lcd(ll a, ll b)
-{
-    return a * b / gcd(a, b);
-}
-ll pow(ll x, ll n)
-{
 
-    ll res = 1;
-    while (n > 0)
-    {
+/**
+ * Problem: Addition to Segment
+ * Source: ITMO Academy Pilot, Segment Tree 2, Step 1, Problem A
+ * Description: 
+ * Range update: add v to elements from l to r-1.
+ * Point query: find the value of the element at position i.
+ */
 
-        if (n & 1)
-            res = (res * x) % m;
-        n = n >> 1;
-        x = (x * x) % m;
-    }
-    return res;
-}
-void print4(vector<vector<ll>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[i].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print3(vector<ll> &v)
-{
-    for (int j = 0; j < v.size(); j++)
-    {
-        cout << v[j] << " ";
-    }
-    cout << endl;
-}
-void print2(vector<vector<char>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[0].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print1(vector<string> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-}
-void input(vector<ll> &v, ll n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        ll y;
-        cin >> y;
-        v.pb(y);
-    }
-}
-class disjointset
-{
-    V rank, parent, rsize;
-   public:
-    disjointset(ll n)
-    {
-        rank.resize(n + 1, 0);
-        parent.resize(n + 1, 0);
-        rsize.resize(n + 1, 1);
-        for (int i = 1; i <= n; i++)
-        {
-            parent[i] = i;
-        }
-    }
-    ll findUparent(ll node){
-        if(parent[node]==node) return node;
-        return parent[node]=findUparent(parent[node]);
-    }
-    void unionbyrank(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rank[ulp_u]<rank[ulp_v]){
-            parent[ulp_u]=ulp_v;
-        }
-        else if(rank[ulp_u]>rank[ulp_v]){
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-            parent[ulp_v]=ulp_u;
-            rank[ulp_u]++;
-        }
-    }
-    void unionbysize(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rsize[ulp_u]>rsize[ulp_v]){
-            rsize[ulp_u]+=rsize[ulp_v];
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-             rsize[ulp_v]+=rsize[ulp_u];
-            parent[ulp_u]=ulp_v;
-        }
-    }
-};
-class segmenttree{
-   public:
-    vector<ll>tree,lazy;
+typedef long long ll;
+
+class SegmentTree {
+public:
+    vector<ll> tree;
+    vector<ll> lazy;
     ll n;
-    segmenttree(ll size){
-        n=size;
-        tree.resize(4*n);
-        lazy.resize(4*n);
+
+    SegmentTree(ll size) {
+        n = size;
+        tree.resize(4 * n, 0);
+        lazy.resize(4 * n, 0);
     }
-    void push(ll idx,ll l, ll r){
-        tree[idx]+=(r-l+1)*lazy[idx];
-        if(l!=r){
-            lazy[2*idx]+=lazy[idx];
-            lazy[2*idx+1]+=lazy[idx];
+
+    // Propagates lazy values to children
+    void push(ll idx, ll l, ll r) {
+        if (lazy[idx] == 0) return;
+        tree[idx] += (r - l + 1) * lazy[idx];
+        if (l != r) {
+            lazy[2 * idx] += lazy[idx];
+            lazy[2 * idx + 1] += lazy[idx];
         }
-        lazy[idx]=0;
-        return ;
+        lazy[idx] = 0;
     }
-    void build(vector<ll>&arr,ll idx,ll l,ll r){
-        if(l==r){
-            tree[idx]=arr[l];
-            return ;
+
+    // Range addition: adds val to [lq, rq]
+    void update(ll idx, ll l, ll r, ll lq, ll rq, ll val) {
+        if (r < lq || l > rq) return;
+        if (l >= lq && r <= rq) {
+            lazy[idx] += val;
+            return;
         }
-        ll mid=(l+r)/2;
-        build(arr,2*idx,l,mid);
-        build(arr,2*idx+1,mid+1,r);
-        tree[idx]=tree[2*idx]+tree[2*idx+1];
+        ll mid = (l + r) / 2;
+        update(2 * idx, l, mid, lq, rq, val);
+        update(2 * idx + 1, mid + 1, r, lq, rq, val);
     }
-    void update(ll idx,ll l,ll r,ll lq,ll rq,ll val){
-        push(idx,l,r);
-        if(r<lq || l>rq) return ;
-        if(l>=lq && r<=rq){
-            lazy[idx]+=val;
-            push(idx,l,r);
-            return ;
+
+    // Point query: finds value at position pos
+    ll query(ll idx, ll l, ll r, ll pos) {
+        if (l == r) {
+            return tree[idx] + lazy[idx];
         }
-        ll mid=(l+r)/2;
-        update(2*idx,l,mid,lq,rq,val);
-        update(2*idx+1,mid+1,r,lq,rq,val);
-        tree[idx]=tree[2*idx]+tree[2*idx+1];
+        ll mid = (l + r) / 2;
+        // The value at a point is the sum of lazy values on the path from root to leaf
+        if (pos <= mid) return lazy[idx] + query(2 * idx, l, mid, pos);
+        return lazy[idx] + query(2 * idx + 1, mid + 1, r, pos);
     }
-    ll query(ll idx,ll l,ll r,ll pos){
-        push(idx,l,r);
-        if(l==r){
-            return tree[idx];
-        }
-        ll mid=(l+r)/2;
-        if(pos<=mid) return query(2*idx,l,mid,pos);
-        return query(2*idx+1,mid+1,r,pos);
-    }
-    void build(vector<ll>&arr){
-        return build(arr,1,0,n-1);
-    }
-    void update(ll lq,ll rq,ll val){
-        update(1,0,n-1,lq,rq,val);
-    }
-    ll query(ll pos){
-        return query(1,0,n-1,pos);
-    }
+
+    void update(ll lq, ll rq, ll val) { update(1, 0, n - 1, lq, rq, val); }
+    ll query(ll pos) { return query(1, 0, n - 1, pos); }
 };
-int main()
-{
-    ll n,m;
-    cin>>n>>m;
-    segmenttree sg(n);
-    vector<ll>arr(n,0);
-    sg.build(arr);
-    while(m--){
+
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0);
+    ll n, m;
+    if (!(cin >> n >> m)) return 0;
+    SegmentTree st(n);
+    
+    while (m--) {
         ll op;
-        cin>>op;
-        if(op==1){
-          ll lx,rx ,val;
-          cin>>lx>>rx>>val;
-          sg.update(lx,rx-1,val);
-        }
-        else{
+        cin >> op;
+        if (op == 1) { // Add val to range [l, r-1]
+            ll l, r, val;
+            cin >> l >> r >> val;
+            st.update(l, r - 1, val);
+        } else { // Value at position pos
             ll pos;
-            cin>>pos;
-            cout<<sg.query(pos)<<endl;
+            cin >> pos;
+            cout << st.query(pos) << "\n";
         }
     }
     return 0;

@@ -1,255 +1,115 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define ll long long
-#define V vector<ll>
-#define VV vector<V>
-#define p push
-#define po pop
-#define pb push_back
-#define ppb pop_back
-#define ff first
-#define ld long double
-#define ss second
-#define sz(x) (int)x.size()
-#define all(x) x.begin(), x.end()
-const int m = 1e9 + 7;
-void print(ll n)
-{
-    cout << n << endl;
-}
-ll gcd(ll a, ll b)
-{
-    return b == 0 ? a : gcd(b, a % b);
-}
-ll lcd(ll a, ll b)
-{
-    return a * b / gcd(a, b);
-}
-ll pow(ll x, ll n)
-{
 
-    ll res = 1;
-    while (n > 0)
-    {
+/**
+ * Problem: Segment with the Maximum Sum
+ * Description: 
+ * Given an array of n integers and m queries of the type (i, v).
+ * After each query, you need to update the i-th element of the array to v
+ * and find the segment with the maximum sum (the sum of elements in the segment).
+ * A segment can be empty, so the maximum sum is at least 0.
+ */
 
-        if (n & 1)
-            res = (res * x) % m;
-        n = n >> 1;
-        x = (x * x) % m;
-    }
-    return res;
-}
-void print4(vector<vector<ll>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[i].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print3(vector<ll> &v)
-{
-    for (int j = 0; j < v.size(); j++)
-    {
-        cout << v[j] << " ";
-    }
-    cout << endl;
-}
-void print2(vector<vector<char>> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        for (int j = 0; j < v[0].size(); j++)
-        {
-            cout << v[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-void print1(vector<string> &v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        cout << v[i] << endl;
-    }
-    cout << endl;
-}
-void input(vector<ll> &v, ll n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        ll y;
-        cin >> y;
-        v.pb(y);
-    }
-}
-class disjointset
-{
-    V rank, parent, rsize;
-   public:
-    disjointset(ll n)
-    {
-        rank.resize(n + 1, 0);
-        parent.resize(n + 1, 0);
-        rsize.resize(n + 1, 1);
-        for (int i = 1; i <= n; i++)
-        {
-            parent[i] = i;
-        }
-    }
-    ll findUparent(ll node){
-        if(parent[node]==node) return node;
-        return parent[node]=findUparent(parent[node]);
-    }
-    void unionbyrank(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rank[ulp_u]<rank[ulp_v]){
-            parent[ulp_u]=ulp_v;
-        }
-        else if(rank[ulp_u]>rank[ulp_v]){
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-            parent[ulp_v]=ulp_u;
-            rank[ulp_u]++;
-        }
-    }
-    void unionbysize(ll u,ll v){
-        ll ulp_u=findUparent(u);
-        ll ulp_v=findUparent(v);
-        if(ulp_u==ulp_v) return;
-        if(rsize[ulp_u]>rsize[ulp_v]){
-            rsize[ulp_u]+=rsize[ulp_v];
-            parent[ulp_v]=ulp_u;
-        }
-        else{
-             rsize[ulp_v]+=rsize[ulp_u];
-            parent[ulp_u]=ulp_v;
-        }
-    }
-};
-struct Node
-{
-    ll sum;
-    ll max_pre_sum;
-    ll max_suff_sum;
-    ll ans;
+typedef long long ll;
+
+struct Node {
+    ll sum;           // Sum of all elements in the segment
+    ll max_pre_sum;   // Maximum prefix sum
+    ll max_suff_sum;  // Maximum suffix sum
+    ll ans;           // Maximum segment sum within this range
 };
 
-class Segmenttree{
-    public:
-    vector<Node>tree;
+class SegmentTree {
+public:
+    vector<Node> tree;
     ll n;
-    Segmenttree(ll size){
-        n=size;
-        tree.resize(4*n);
+
+    SegmentTree(ll size) {
+        n = size;
+        tree.resize(4 * n);
     }
-    Node combine(Node a,Node b){
+
+    // Merges two nodes to calculate the values for their parent node
+    Node combine(Node a, Node b) {
         Node cmb;
-
-        cmb.sum=a.sum+b.sum;
-
-        // max_pre_sum of combine 
-        cmb.max_pre_sum=max(a.max_pre_sum,a.sum+b.max_pre_sum);
-
-        // max_suffix_sum of combine
-
-        cmb.max_suff_sum=max(b.max_suff_sum,b.sum+a.max_suff_sum);
-
-        // max_ans
-        cmb.ans=max({a.ans,b.ans,a.max_suff_sum+b.max_pre_sum});
-
+        cmb.sum = a.sum + b.sum;
+        // Max prefix sum is either a's max prefix or a's total sum + b's max prefix
+        cmb.max_pre_sum = max(a.max_pre_sum, a.sum + b.max_pre_sum);
+        // Max suffix sum is either b's max suffix or b's total sum + a's max suffix
+        cmb.max_suff_sum = max(b.max_suff_sum, b.sum + a.max_suff_sum);
+        // Max segment sum is max of (left ans, right ans, cross-mid sum)
+        cmb.ans = max({a.ans, b.ans, a.max_suff_sum + b.max_pre_sum});
         return cmb;
-
-
     }
 
-    void build(vector<ll>&arr,ll idx,ll l,ll r){
-
-        if(l==r){
-            tree[idx].ans=arr[l];
-            tree[idx].max_pre_sum=arr[l];
-            tree[idx].max_suff_sum=arr[l];
-            tree[idx].sum=arr[l];
-            return ;
+    // Builds the segment tree from the initial array
+    void build(vector<ll>& arr, ll idx, ll l, ll r) {
+        if (l == r) {
+            tree[idx].ans = arr[l];
+            tree[idx].max_pre_sum = arr[l];
+            tree[idx].max_suff_sum = arr[l];
+            tree[idx].sum = arr[l];
+            return;
         }
-        ll mid=(l+r)/2;
-        build(arr,2*idx,l,mid);
-        build(arr,2*idx+1,mid+1,r);
-        tree[idx]=combine(tree[2*idx],tree[2*idx+1]);
-    }
-    
-    void update(ll idx,ll l,ll r,ll pos,ll val){
-        if(pos<l || pos>r){
-            return ;
-        }
-        if(l==r){
-            tree[idx].sum=val;
-            tree[idx].ans=val;
-            tree[idx].max_pre_sum=val;
-            tree[idx].max_suff_sum=val;
-            return ;
-        }
-        ll mid=(l+r)/2;
-        if(pos<=mid){
-            update(2*idx,l,mid,pos,val);
-        }
-        else{
-            update(2*idx+1,mid+1,r,pos,val);
-        }
-        tree[idx]=combine(tree[2*idx],tree[2*idx+1]);
-    }
-    Node query(ll idx,ll l,ll r,ll lq,ll rq){
-        // compleletry inside range 
-        if(r<lq || l> rq){
-            Node p;
-            return p;
-        }
-        if(l>=lq && r<=rq) return tree[idx];
-
-        ll mid=(l+r)/2;
-
-        Node a=query(2*idx,l,mid,lq,rq);
-        Node b=query(2*idx+1,mid+1,r,lq,rq);
-        return combine(a,b);
-    }
-    void build(vector<ll>&arr){
-         build(arr,1,0,n-1);
-    }
-    void update(ll pos,ll val){
-        update(1,0,n-1,pos,val);
+        ll mid = (l + r) / 2;
+        build(arr, 2 * idx, l, mid);
+        build(arr, 2 * idx + 1, mid + 1, r);
+        tree[idx] = combine(tree[2 * idx], tree[2 * idx + 1]);
     }
 
-    Node query(ll lq,ll rq){
-        return query(1,0,n-1,lq,rq);
+    // Updates the element at pos to val and recalculates the path to the root
+    void update(ll idx, ll l, ll r, ll pos, ll val) {
+        if (pos < l || pos > r) return;
+        if (l == r) {
+            tree[idx].sum = val;
+            tree[idx].ans = val;
+            tree[idx].max_pre_sum = val;
+            tree[idx].max_suff_sum = val;
+            return;
+        }
+        ll mid = (l + r) / 2;
+        if (pos <= mid) update(2 * idx, l, mid, pos, val);
+        else update(2 * idx + 1, mid + 1, r, pos, val);
+        tree[idx] = combine(tree[2 * idx], tree[2 * idx + 1]);
     }
 
+    // Queries the entire range for the maximum sum
+    Node query(ll idx, ll l, ll r, ll lq, ll rq) {
+        if (r < lq || l > rq) {
+            // Return a "neutral" node with very small values except sum
+            return {0, (ll)-1e18, (ll)-1e18, (ll)-1e18};
+        }
+        if (l >= lq && r <= rq) return tree[idx];
+        ll mid = (l + r) / 2;
+        Node a = query(2 * idx, l, mid, lq, rq);
+        Node b = query(2 * idx + 1, mid + 1, r, lq, rq);
+        return combine(a, b);
+    }
+
+    void build(vector<ll>& arr) { build(arr, 1, 0, n - 1); }
+    void update(ll pos, ll val) { update(1, 0, n - 1, pos, val); }
+    Node query(ll lq, ll rq) { return query(1, 0, n - 1, lq, rq); }
 };
-int main()
-{
-    ll n,q;
-    cin>>n>>q;
-    vector<ll>arr;
-    for(ll i=0;i<n;i++){
-        ll num;
-        cin>>num;
-        arr.push_back(num);
+
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0); // Fast I/O
+    ll n, q;
+    if (!(cin >> n >> q)) return 0;
+    vector<ll> arr(n);
+    for (ll i = 0; i < n; i++) cin >> arr[i];
+
+    SegmentTree st(n);
+    st.build(arr);
+
+    // Maximum sum can be 0 if all elements on chosen segment are negative/empty
+    cout << max(st.query(0, n - 1).ans, 0LL) << "\n";
+
+    while (q--) {
+        ll pos, val;
+        cin >> pos >> val;
+        st.update(pos, val);
+        cout << max(st.query(0, n - 1).ans, 0LL) << "\n";
     }
-    Segmenttree sq(n);
-    sq.build(arr);
-    cout<<max(sq.query(0,n-1).ans,0LL)<<endl;
-    while (q--)
-    {
-        ll pos,val;
-        cin>>pos>>val;
-        sq.update(pos,val);
-        cout<<max(sq.query(0,n-1).ans,0LL)<<endl;
-    }
-    
+
     return 0;
 }
