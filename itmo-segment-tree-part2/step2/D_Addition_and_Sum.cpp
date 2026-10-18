@@ -3,7 +3,7 @@ using namespace std;
 
 /**
  * Problem: Addition and Sum
- * Source: ITMO Academy Pilot, Segment Tree 2, Step 1, Problem D
+ * Source: ITMO Academy Pilot, Segment Tree part 2, Step 2, Problem D
  * Description: 
  * Range update: ai = ai + v for all l <= i < r.
  * Range query: calculate the sum of ai in the range [l, r).

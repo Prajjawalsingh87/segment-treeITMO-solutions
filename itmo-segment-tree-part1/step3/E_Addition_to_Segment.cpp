@@ -3,7 +3,7 @@ using namespace std;
 
 /**
  * Problem: Addition to Segment
- * Source: ITMO Academy Pilot, Segment Tree 2, Step 2, Problem E
+ * Source: ITMO Academy Pilot, Segment Tree part 1, Step 3, Problem E
  * Description: 
  * Range update: ai = ai + v for all l <= i < r.
  * Point query: find the value of ai.

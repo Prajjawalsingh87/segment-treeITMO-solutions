@@ -20,7 +20,7 @@ int main() {
         cin >> str;
         ll cnt = 0;
         string new_str = "";
-        for (ll i = 0; i < str.size(); i++) {
+        for (ll i = 0; i < (ll)str.size(); i++) {
             if (str[i] - '0' == 4 || str[i] - '0' == 8) cnt++;
             else new_str += str[i];
         }
@@ -32,7 +32,7 @@ int main() {
 
         vector<ll> prefix_odd_sum(new_str.size(), 0), suffix_odd_sum(new_str.size(), 0);
         ll count_odd = 0;
-        for (int i = 0; i < new_str.size(); i++) {
+        for (int i = 0; i < (int)new_str.size(); i++) {
             if (new_str[i] != '2' && new_str[i] != '6') count_odd++;
             prefix_odd_sum[i] = count_odd;
         }
@@ -43,7 +43,7 @@ int main() {
         }
 
         ll ans = 1e18;
-        for (ll i = 0; i < new_str.size(); i++) {
+        for (ll i = 0; i < (ll)new_str.size(); i++) {
             ll prefix_odd = prefix_odd_sum[i];
             ll suffix_eve = (ll)new_str.size() - i - 1 - suffix_odd_sum[i];
             ans = min(ans, prefix_odd + suffix_eve + cnt);
