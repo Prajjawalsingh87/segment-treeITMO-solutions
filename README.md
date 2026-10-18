@@ -32,9 +32,11 @@ To compile everything (CI does the same):
 
 ```bash
 mkdir -p build
-find . -name '*.cpp' -not -path './.git/*' | while read -r f; do
-  g++ -std=c++17 -O2 -Wall "$f" -o "build/$(basename "$f" .cpp)" || echo "FAILED: $f"
-done
+failed=0
+while read -r f; do
+  g++ -std=c++17 -O2 -Wall "$f" -o "build/$(basename "$f" .cpp)" || { echo "FAILED: $f"; failed=1; }
+done < <(find . -name '*.cpp' -not -path './.git/*')
+[ "$failed" -eq 0 ]
 ```
 
 `build/` and `*.out` are git-ignored.

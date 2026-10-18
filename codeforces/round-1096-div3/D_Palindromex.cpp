@@ -66,7 +66,7 @@ int main() {
         //  original accepted solution.)
         set<ll> s1, s2;
         for (int c = 0; L - c >= 0 && L + c < m && a[L - c] == a[L + c]; c++) s1.insert(a[L - c]);
-        for (int c = 0; R - c >= 0 && R + c < m - 1 && a[R - c] == a[R + c]; c++) s2.insert(a[R - c]);
+        for (int c = 0; R - c >= 0 && R + c < m && a[R - c] == a[R + c]; c++) s2.insert(a[R - c]);
         res = max(res, get_mex(s1));
         res = max(res, get_mex(s2));
 
