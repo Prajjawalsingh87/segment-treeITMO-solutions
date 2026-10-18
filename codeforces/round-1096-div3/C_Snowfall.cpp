@@ -34,7 +34,7 @@ int main() {
         int head = 0, tail = n - 1;
         
         // Place divisible by 6
-        for (int i = 0; i < div6.size(); i++) {
+        for (int i = 0; i < (int)div6.size(); i++) {
             if (i % 2 == 0) ans[head++] = div6[i];
             else ans[tail--] = div6[i];
         }

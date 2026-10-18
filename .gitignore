@@ -1,0 +1,19 @@
+# Compiled binaries (README build commands write to build/ or *.out)
+build/
+bin/
+*.out
+*.o
+*.obj
+*.exe
+*.dSYM/
+a.out
+
+# Local input/output scratch files
+input.txt
+output.txt
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store

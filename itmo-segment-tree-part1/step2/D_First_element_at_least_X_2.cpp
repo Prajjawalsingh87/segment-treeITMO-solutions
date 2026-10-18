@@ -3,7 +3,7 @@ using namespace std;
 
 /**
  * Problem: First element at least X - 2
- * Source: ITMO Academy Pilot, Segment Tree 1, Step 3, Problem B (variant)
+ * Source: ITMO Academy Pilot, Segment Tree part 1, Step 2, Problem D
  * Description: 
  * Range query: find the first index i >= l such that ai >= x.
  * Point update: change ai to v.

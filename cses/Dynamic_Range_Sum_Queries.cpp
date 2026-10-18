@@ -2,10 +2,10 @@
 using namespace std;
 
 /**
- * Problem: Dynamic Range Minimum Queries
- * Source: CSES (or similar)
+ * Problem: Dynamic Range Sum Queries
+ * Source: CSES
  * Description: 
- * Range query: find the minimum element in range [l, r].
+ * Range query: calculate the sum of elements in range [l, r].
  * Point update: change element at position k to u.
  */
 
@@ -18,7 +18,7 @@ public:
 
     SegmentTree(int size) {
         n = size;
-        tree.assign(4 * n, 2e18);
+        tree.assign(4 * n, 0);
     }
 
     void build(const vector<ll>& arr, int idx, int l, int r) {
@@ -29,7 +29,7 @@ public:
         int mid = (l + r) / 2;
         build(arr, 2 * idx, l, mid);
         build(arr, 2 * idx + 1, mid + 1, r);
-        tree[idx] = min(tree[2 * idx], tree[2 * idx + 1]);
+        tree[idx] = tree[2 * idx] + tree[2 * idx + 1];
     }
 
     void update(int idx, int l, int r, int pos, ll val) {
@@ -40,14 +40,14 @@ public:
         int mid = (l + r) / 2;
         if (pos <= mid) update(2 * idx, l, mid, pos, val);
         else update(2 * idx + 1, mid + 1, r, pos, val);
-        tree[idx] = min(tree[2 * idx], tree[2 * idx + 1]);
+        tree[idx] = tree[2 * idx] + tree[2 * idx + 1];
     }
 
     ll query(int idx, int l, int r, int lq, int rq) {
-        if (r < lq || l > rq) return 2e18;
+        if (r < lq || l > rq) return 0;
         if (l >= lq && r <= rq) return tree[idx];
         int mid = (l + r) / 2;
-        return min(query(2 * idx, l, mid, lq, rq), query(2 * idx + 1, mid + 1, r, lq, rq));
+        return query(2 * idx, l, mid, lq, rq) + query(2 * idx + 1, mid + 1, r, lq, rq);
     }
 
     void build(const vector<ll>& arr) { build(arr, 1, 0, n - 1); }

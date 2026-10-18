@@ -3,7 +3,7 @@ using namespace std;
 
 /**
  * Problem: Earthquakes
- * Source: ITMO Academy Pilot, Segment Tree 2, Step 2, Problem E (variant)
+ * Source: ITMO Academy Pilot, Segment Tree part 1, Step 4, Problem E
  * Description: 
  * Range update: buildings in pos p get strength val.
  * Range query: count buildings in range [l, r) with strength <= val and destroy them.
