@@ -17,3 +17,7 @@ output.txt
 .idea/
 *.swp
 .DS_Store
+
+.vercel/
+
+.code-review-graph/
